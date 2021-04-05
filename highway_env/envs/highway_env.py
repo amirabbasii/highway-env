@@ -65,6 +65,7 @@ class HighwayEnv(AbstractEnv):
         other_per_controlled = near_split(self.config["vehicles_count"], num_bins=self.config["controlled_vehicles"])
 
         self.controlled_vehicles = []
+        t=np.random.randint(3)
         for others in other_per_controlled:
             controlled_vehicle = self.action_type.vehicle_class.create_random(
                 self.road,
@@ -77,8 +78,9 @@ class HighwayEnv(AbstractEnv):
 
             for _ in range(others):
                 self.road.vehicles.append(
-                    other_vehicles_type.create_random(self.road, spacing=1 / self.config["vehicles_density"])
+                    other_vehicles_type.create_random(self.road,lane_id=t, spacing=1 / self.config["vehicles_density"])
                 )
+                t=(t+1)%3
 
     def _reward(self, action: Action) -> float:
         """

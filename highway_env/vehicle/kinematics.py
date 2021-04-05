@@ -88,7 +88,7 @@ class Vehicle(RoadObject):
                 speed = road.np_random.uniform(0.7*lane.speed_limit, lane.speed_limit)
             else:
                 speed = road.np_random.uniform(Vehicle.DEFAULT_SPEEDS[0], Vehicle.DEFAULT_SPEEDS[1])
-        default_spacing = 15+1.2*speed
+        default_spacing = np.random.randint(0,15)+peed
         offset = spacing * default_spacing * np.exp(-5 / 40 * len(road.network.graph[_from][_to]))
         x0 = np.max([lane.local_coordinates(v.position)[0] for v in road.vehicles]) \
             if len(road.vehicles) else 3*offset
@@ -119,6 +119,7 @@ class Vehicle(RoadObject):
             self.action = action
 
     def step(self, dt: float) -> None:
+
         """
         Propagate the vehicle state given its actions.
 

@@ -37,11 +37,11 @@ class HighwayEnv(AbstractEnv):
             "action": {
                 "type": "DiscreteMetaAction",
             },
-            "lanes_count": 4,
-            "vehicles_count": 50,
+            "lanes_count": 3,
+            "vehicles_count": 30,
             "controlled_vehicles": 1,
             "initial_lane_id": None,
-            "duration": 40,  # [s]
+            "duration": 20,  # [s]
             "ego_spacing": 2,
             "vehicles_density": 1,
             "collision_reward": -1,  # The reward received when colliding with a vehicle.
@@ -68,8 +68,8 @@ class HighwayEnv(AbstractEnv):
         for others in other_per_controlled:
             controlled_vehicle = self.action_type.vehicle_class.create_random(
                 self.road,
-                speed=25,
-                lane_id=self.config["initial_lane_id"],
+                speed=np.random.randint(23,25),
+                lane_id=1,
                 spacing=self.config["ego_spacing"]
             )
             self.controlled_vehicles.append(controlled_vehicle)

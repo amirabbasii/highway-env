@@ -531,6 +531,28 @@ class Multiple(ObservationType):
             return spaces.Box(shape=self.observe().shape, low=0, high=1, dtype=np.float32)
         except AttributeError:
             return spaces.Space()
+    
+   def normalize_obs(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalize the observation values.
+
+        For now, assume that the road is straight along the x axis.
+        :param Dataframe df: observation data
+        """
+        if not self.features_range:
+            side_lanes = self.env.road.network.all_side_lanes(self.observer_vehicle.lane_index)
+            self.features_range = {
+                "x": [-5.0 * MDPVehicle.SPEED_MAX, 5.0 * MDPVehicle.SPEED_MAX],
+                "y": [-AbstractLane.DEFAULT_WIDTH * len(side_lanes), AbstractLane.DEFAULT_WIDTH * len(side_lanes)],
+                "vx": [-2*MDPVehicle.SPEED_MAX, 2*MDPVehicle.SPEED_MAX],
+                "vy": [-2*MDPVehicle.SPEED_MAX, 2*MDPVehicle.SPEED_MAX]
+            }
+        for feature, f_range in self.features_range.items():
+            if feature in df:
+                df[feature] = utils.lmap(df[feature], [f_range[0], f_range[1]], [-1, 1])
+                if self.clip:
+                    df[feature] = np.clip(df[feature], -1, 1)
+        return df
 
     def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
         """

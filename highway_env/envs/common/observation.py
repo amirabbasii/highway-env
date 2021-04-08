@@ -517,7 +517,7 @@ class Multiple(ObservationType):
                  observe_intentions: bool = False,horizon: int = 10, **kwargs: dict) -> None:
         super().__init__(env)
         self.horizon = horizon
-                self.features = features or self.FEATURES
+        self.features = features or self.FEATURES
         self.vehicles_count = vehicles_count
         self.features_range = features_range
         self.absolute = absolute

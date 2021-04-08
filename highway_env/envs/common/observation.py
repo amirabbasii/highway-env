@@ -432,7 +432,7 @@ class LidarObservation(ObservationType):
     SPEED = 1
 
     def __init__(self, env,
-                 cells: int = 16,
+                 cells: int = 32,
                  maximum_range: float = 60,
                  normalize: bool = True,
                  **kwargs):
@@ -501,6 +501,108 @@ class LidarObservation(ObservationType):
         return np.array([[np.cos(index * self.angle)], [np.sin(index * self.angle)]])
 
 
+class Multiple(ObservationType):
+    FEATURES: List[str] = ['presence', 'vx', 'vy']
+    GRID_SIZE: List[List[float]] = [[-5.5*5, 5.5*5], [-5.5*5, 5.5*5]]
+    GRID_STEP: List[int] = [5, 5]
+
+    def __init__(self, env: 'AbstractEnv', features: List[str] = None,
+                 vehicles_count: int = 5,
+                 features_range: Dict[str, List[float]] = None,
+                 absolute: bool = False,
+                 order: str = "sorted",
+                 normalize: bool = True,
+                 clip: bool = True,
+                 see_behind: bool = False,
+                 observe_intentions: bool = False,horizon: int = 10, **kwargs: dict) -> None:
+        super().__init__(env)
+        self.horizon = horizon
+                self.features = features or self.FEATURES
+        self.vehicles_count = vehicles_count
+        self.features_range = features_range
+        self.absolute = absolute
+        self.order = order
+        self.normalize = normalize
+        self.clip = clip
+        self.see_behind = see_behind
+        self.observe_intentions = observe_intentions
+    def space(self) -> spaces.Space:
+        try:
+            return spaces.Box(shape=self.observe().shape, low=0, high=1, dtype=np.float32)
+        except AttributeError:
+            return spaces.Space()
+
+    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Normalize the observation values.
+
+        For now, assume that the road is straight along the x axis.
+        :param Dataframe df: observation data
+        """
+        if not self.features_range:
+            self.features_range = {
+                "vx": [-2*MDPVehicle.SPEED_MAX, 2*MDPVehicle.SPEED_MAX],
+                "vy": [-2*MDPVehicle.SPEED_MAX, 2*MDPVehicle.SPEED_MAX]
+            }
+        for feature, f_range in self.features_range.items():
+            if feature in df:
+                df[feature] = utils.lmap(df[feature], [f_range[0], f_range[1]], [-1, 1])
+        return df
+
+    def observe(self) -> np.ndarray:
+            if not self.env.road:
+                return np.zeros(self.space().shape)
+
+            # Add ego-vehicle
+            df = pd.DataFrame.from_records([self.observer_vehicle.to_dict()])[self.features]
+            # Add nearby traffic
+            # sort = self.order == "sorted"
+            close_vehicles = self.env.road.close_vehicles_to(self.observer_vehicle,
+                                                            self.env.PERCEPTION_DISTANCE,
+                                                            count=self.vehicles_count - 1,
+                                                            see_behind=self.see_behind)
+            if close_vehicles:
+                origin = self.observer_vehicle if not self.absolute else None
+                df = df.append(pd.DataFrame.from_records(
+                    [v.to_dict(origin, observe_intentions=self.observe_intentions)
+                    for v in close_vehicles[-self.vehicles_count + 1:]])[self.features],
+                              ignore_index=True)
+            # Normalize and clip
+            if self.normalize:
+                df = self.normalize_obs(df)
+            # Fill missing rows
+            if df.shape[0] < self.vehicles_count:
+                rows = np.zeros((self.vehicles_count - df.shape[0], len(self.features)))
+                df = df.append(pd.DataFrame(data=rows, columns=self.features), ignore_index=True)
+            # Reorder
+            df = df[self.features]
+            obs = df.values.copy()
+            if self.order == "shuffled":
+                self.env.np_random.shuffle(obs[1:])
+            # Flatten
+            
+            if not self.env.road:
+                return np.zeros((3, 3, int(self.horizon * self.env.config["policy_frequency"])))
+            grid = compute_ttc_grid(self.env, vehicle=self.observer_vehicle,
+                                    time_quantization=1/self.env.config["policy_frequency"], horizon=self.horizon)
+            padding = np.ones(np.shape(grid))
+            padded_grid = np.concatenate([padding, grid, padding], axis=1)
+            obs_lanes = 3
+            l0 = grid.shape[1] + self.observer_vehicle.lane_index[2] - obs_lanes // 2
+            lf = grid.shape[1] + self.observer_vehicle.lane_index[2] + obs_lanes // 2
+            clamped_grid = padded_grid[:, l0:lf+1, :]
+            repeats = np.ones(clamped_grid.shape[0])
+            repeats[np.array([0, -1])] += clamped_grid.shape[0]
+            padded_grid = np.repeat(clamped_grid, repeats.astype(int), axis=0)
+            obs_speeds = 3
+            v0 = grid.shape[0] + self.observer_vehicle.speed_index - obs_speeds // 2
+            vf = grid.shape[0] + self.observer_vehicle.speed_index + obs_speeds // 2
+            clamped_grid = padded_grid[v0:vf + 1, :, :]
+            return np.append(obs.flatten(),clamped_grid.flatten(),axis=0)
+
+
+
+
 def observation_factory(env: 'AbstractEnv', config: dict) -> ObservationType:
     if config["type"] == "TimeToCollision":
         return TimeToCollisionObservation(env, **config)
@@ -520,5 +622,7 @@ def observation_factory(env: 'AbstractEnv', config: dict) -> ObservationType:
         return LidarObservation(env, **config)
     elif config["type"] == "ExitObservation":
         return ExitObservation(env, **config)
+    elif config["type"] == "Multiple":
+      return Multiple(env, **config)
     else:
         raise ValueError("Unknown observation type")

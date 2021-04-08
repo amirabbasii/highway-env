@@ -532,7 +532,7 @@ class Multiple(ObservationType):
         except AttributeError:
             return spaces.Space()
     
-   def normalize_obs(self, df: pd.DataFrame) -> pd.DataFrame:
+    def normalize_obs(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Normalize the observation values.
 

@@ -69,6 +69,7 @@ class HighwayEnv(AbstractEnv):
         for others in other_per_controlled:
             controlled_vehicle = self.action_type.vehicle_class.create_random(
                 self.road,
+                amir=False,
                 speed=np.random.randint(23,25),
                 lane_id=1,
                 spacing=self.config["ego_spacing"]

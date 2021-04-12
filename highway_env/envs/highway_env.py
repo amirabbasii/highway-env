@@ -38,7 +38,7 @@ class HighwayEnv(AbstractEnv):
                 "type": "DiscreteMetaAction",
             },
             "lanes_count": 3,
-            "vehicles_count": 20,
+            "vehicles_count": 2,
             "controlled_vehicles": 1,
             "initial_lane_id": None,
             "duration": 20,  # [s]
@@ -75,10 +75,10 @@ class HighwayEnv(AbstractEnv):
             )
             self.controlled_vehicles.append(controlled_vehicle)
             self.road.vehicles.append(controlled_vehicle)
-
-            for _ in range(others):
+            flags=[True,False]
+            for i in range(others):
                 self.road.vehicles.append(
-                    other_vehicles_type.create_random(self.road,lane_id=t, spacing=1 / self.config["vehicles_density"])
+                    other_vehicles_type.create_random(self.road,amir=flags[i],lane_id=1, spacing=1 / self.config["vehicles_density"])
                 )
                 t=(t+1)%3
 

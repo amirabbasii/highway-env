@@ -108,7 +108,10 @@ class IDMVehicle(ControlledVehicle):
                                                         rear_vehicle=rear_vehicle)
             action['acceleration'] = min(action['acceleration'], target_idm_acceleration)
         # action['acceleration'] = self.recover_from_stop(action['acceleration'])
-        action['acceleration'] = np.clip(action['acceleration'], -self.ACC_MAX, self.ACC_MAX)
+        if self.amir
+            action['acceleration']=1
+        else:
+            action['acceleration'] = np.clip(action['acceleration'], -self.ACC_MAX, self.ACC_MAX)
         Vehicle.act(self, action)  # Skip ControlledVehicle.act(), or the command will be overriden.
 
     def step(self, dt: float):

@@ -99,13 +99,16 @@ class HighwayEnv(AbstractEnv):
         reward = utils.lmap(reward,
                           [self.config["collision_reward"], self.HIGH_SPEED_REWARD + self.RIGHT_LANE_REWARD],
                           [0, 1])
-        reward = 0 if not self.vehicle.on_road else reward
+        reward = -1 if self.vehicle.crashed else 0
+        if self.vehicle.speed<=0:
+          reward=10
         return reward
 
     def _is_terminal(self) -> bool:
         """The episode is over if the ego vehicle crashed or the time is out."""
         return self.vehicle.crashed or \
             self.steps >= self.config["duration"] or \
+            self.vehicle.speed<=0 or \
             (self.config["offroad_terminal"] and not self.vehicle.on_road)
 
     def _cost(self, action: int) -> float:

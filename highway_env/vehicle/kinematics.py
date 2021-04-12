@@ -60,6 +60,7 @@ class Vehicle(RoadObject):
     @classmethod
     def create_random(cls, road: Road,
                       speed: float = None,
+                      amir:Optional[bool]=False,
                       lane_from: Optional[str] = None,
                       lane_to: Optional[str] = None,
                       lane_id: Optional[int] = None,
@@ -93,7 +94,7 @@ class Vehicle(RoadObject):
         x0 = np.max([lane.local_coordinates(v.position)[0] for v in road.vehicles]) \
             if len(road.vehicles) else 3*offset
         x0 += offset * road.np_random.uniform(0.9, 1.1)
-        v = cls(road, lane.position(x0, 0), lane.heading_at(x0), speed)
+        v = cls(road, lane.position(x0, 0), lane.heading_at(x0), speed,amir)
         return v
 
     @classmethod

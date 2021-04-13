@@ -93,17 +93,25 @@ class HighwayEnv(AbstractEnv):
         lane = self.vehicle.target_lane_index[2] if isinstance(self.vehicle, ControlledVehicle) \
             else self.vehicle.lane_index[2]
         scaled_speed = utils.lmap(self.vehicle.speed, self.config["reward_speed_range"], [0, 1])
+        flag=False
+        for v in self.road.vehicles[1:]:
+          if v.crashed and not self.vehicle.crashed:
+            flag=True
+        
         reward = \
-            + self.config["collision_reward"] * self.vehicle.crashed \
+            + self.config["collision_reward"] * self.vehicle.crashed -1*flag \
             + self.RIGHT_LANE_REWARD * lane / max(len(neighbours) - 1, 1) \
             + self.HIGH_SPEED_REWARD * np.clip(scaled_speed, 0, 1)
         reward = utils.lmap(reward,
                           [self.config["collision_reward"], self.HIGH_SPEED_REWARD + self.RIGHT_LANE_REWARD],
                           [0, 1])
-        reward = -1 if self.vehicle.crashed else 0
-        if self.vehicle.speed<=0:
-          reward=10
+        
+         
+        
+        # if self.vehicle.speed<=0:
+        #   reward=10
         return reward
+
 
     def _is_terminal(self) -> bool:
         """The episode is over if the ego vehicle crashed or the time is out."""

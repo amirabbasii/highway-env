@@ -233,7 +233,9 @@ class MDPVehicle(ControlledVehicle):
             self.speed_index = self.speed_to_index(self.speed) + 1
         elif action == "SLOWER":
             self.speed_index = self.speed_to_index(self.speed) - 1
+            self.SPEED_MIN=-1
         else:
+            self.SPEED_MIN=20
             super().act(action)
             return
         self.speed_index = int(np.clip(self.speed_index, 0, self.SPEED_COUNT - 1))

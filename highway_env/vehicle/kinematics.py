@@ -61,6 +61,7 @@ class Vehicle(RoadObject):
     def create_random(cls, road: Road,
                       speed: float = None,
                       amir:Optional[bool]=False,
+                      back:Optional[bool]=False,
                       lane_from: Optional[str] = None,
                       lane_to: Optional[str] = None,
                       lane_id: Optional[int] = None,
@@ -89,11 +90,13 @@ class Vehicle(RoadObject):
                 speed = road.np_random.uniform(0.7*lane.speed_limit, lane.speed_limit)
             else:
                 speed = road.np_random.uniform(Vehicle.DEFAULT_SPEEDS[0], Vehicle.DEFAULT_SPEEDS[1])
-        default_spacing = np.random.randint(10,20)+speed
+        default_spacing = np.random.randint(1,15)+speed
         offset = spacing * default_spacing * np.exp(-5 / 40 * len(road.network.graph[_from][_to]))
         x0 = np.max([lane.local_coordinates(v.position)[0] for v in road.vehicles]) \
             if len(road.vehicles) else 3*offset
         x0 += offset * road.np_random.uniform(0.9, 1.1)
+        if back:
+          x0=road.vehicles[0].position[0]-10
         v = cls(road, lane.position(x0, 0), lane.heading_at(x0), speed,amir)
         return v
 

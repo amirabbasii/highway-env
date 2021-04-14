@@ -33,7 +33,9 @@ class Vehicle(RoadObject):
                  road: Road,
                  position: Vector,
                  heading: float = 0,
-                 speed: float = 0):
+                 speed: float = 0,
+                 amir:bool=False,
+                ):
         super().__init__(road, position, heading, speed)
         self.action = {'steering': 0, 'acceleration': 0}
         self.crashed = False

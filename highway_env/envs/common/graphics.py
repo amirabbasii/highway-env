@@ -160,6 +160,10 @@ class EnvViewer(object):
           cv2.putText(arr,'!',(11,26), font, 1,(255,255,255),2)
           
           img[2:2+32,10:10+32]=arr
+        
+        arr=np.ones((32,100,3))*100
+        cv2.putText(arr,"{:.2f}".format(self.env.vehicle.speed),(11,26), font, 1,(0,0,0),2)
+        img[2:32+2,45:45+100]=arr
         return img
 
     def window_position(self) -> np.ndarray:

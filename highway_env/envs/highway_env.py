@@ -26,7 +26,7 @@ class HighwayEnv(AbstractEnv):
 
     LANE_CHANGE_REWARD: float = 0
     """The reward received at each lane change action."""
-    alarm=False
+    
 
     @classmethod
     def default_config(cls) -> dict:

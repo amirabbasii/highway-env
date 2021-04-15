@@ -57,6 +57,7 @@ class IDMVehicle(ControlledVehicle):
         self.enable_lane_change = enable_lane_change
         self.timer = timer or (np.sum(self.position)*np.pi) % self.LANE_CHANGE_DELAY
         self.amir=amir
+        self.alarm=False
     def randomize_behavior(self):
         pass
 

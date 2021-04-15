@@ -148,7 +148,7 @@ class EnvViewer(object):
         surface = self.screen if self.config["render_agent"] and not self.offscreen else self.sim_surface
         data = pygame.surfarray.array3d(surface)  # in W x H x C channel convention
         img=np.moveaxis(data, 0, 1)
-        if self.env.alarm:
+        if self.env.vehicle.alarm:
           arr = np.zeros((32,32,3))
           stroke = 3
           # Create an outer and inner circle. Then subtract the inner from the outer.

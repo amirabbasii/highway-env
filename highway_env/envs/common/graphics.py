@@ -3,6 +3,9 @@ from typing import TYPE_CHECKING, Callable, List, Optional
 import numpy as np
 import pygame
 from gym.spaces import Discrete
+from skimage import draw
+import cv2
+font = cv2.FONT_HERSHEY_SIMPLEX
 
 from highway_env.envs.common.action import ActionType, DiscreteMetaAction, ContinuousAction
 from highway_env.road.graphics import WorldSurface, RoadGraphics
@@ -144,7 +147,20 @@ class EnvViewer(object):
         """
         surface = self.screen if self.config["render_agent"] and not self.offscreen else self.sim_surface
         data = pygame.surfarray.array3d(surface)  # in W x H x C channel convention
-        return np.moveaxis(data, 0, 1)
+        img=np.moveaxis(data, 0, 1)
+        if self.env.alarm:
+          arr = np.zeros((32,32,3))
+          stroke = 3
+          # Create an outer and inner circle. Then subtract the inner from the outer.
+          radius = 30
+          inner_radius = radius - (stroke // 2) + (stroke % 2) - 1 
+          outer_radius = radius + ((stroke + 1) // 2)
+          ri, ci = draw.circle(16, 16, radius=inner_radius, shape=arr.shape)
+          arr[ri, ci,0] = 255
+          cv2.putText(arr,'!',(11,26), font, 1,(255,255,255),2)
+          
+          img[2:2+32,10:10+32]=arr
+        return img
 
     def window_position(self) -> np.ndarray:
         """the world position of the center of the displayed window."""

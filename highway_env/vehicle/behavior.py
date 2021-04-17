@@ -95,6 +95,13 @@ class IDMVehicle(ControlledVehicle):
         action['steering'] = self.steering_control(self.target_lane_index)
         action['steering'] = np.clip(action['steering'], -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
         action['steering']=0
+        if self.sadism:
+          if np.abs(self.position[0]-self.road.vehicles[0].position[0])<5:
+            if self.road.vehicles[0].position[1]-self.position[1]<0:
+              action['steering']=-0.01
+            elif self.road.vehicles[0].position[1]-self.position[1]>0:
+              action['steering']=0.01
+
         # Longitudinal: IDM
         front_vehicle, rear_vehicle = self.road.neighbour_vehicles(self, self.lane_index)
         action['acceleration'] = self.acceleration(ego_vehicle=self,

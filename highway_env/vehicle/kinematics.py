@@ -43,6 +43,7 @@ class Vehicle(RoadObject):
         self.log = []
         self.history = deque(maxlen=30)
         self.amir=amir
+        self.alarm=False
         self.sadism=np.random.randint(2)==True
 
     @classmethod

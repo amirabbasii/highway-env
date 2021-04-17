@@ -46,7 +46,7 @@ class HighwayEnv(AbstractEnv):
             "ego_spacing": 2,
             "vehicles_density": 1,
             "collision_reward": -1,  # The reward received when colliding with a vehicle.
-            "reward_speed_range": [20, 30],
+            "reward_speed_range": [0, 30],
             "offroad_terminal": False
         })
         return config

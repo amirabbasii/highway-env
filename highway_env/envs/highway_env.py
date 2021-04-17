@@ -39,7 +39,7 @@ class HighwayEnv(AbstractEnv):
                 "type": "DiscreteMetaAction",
             },
             "lanes_count": 3,
-            "vehicles_count": 3,
+            "vehicles_count": 2,
             "controlled_vehicles": 1,
             "initial_lane_id": None,
             "duration": 20,  # [s]
@@ -67,7 +67,8 @@ class HighwayEnv(AbstractEnv):
         other_per_controlled = near_split(self.config["vehicles_count"], num_bins=self.config["controlled_vehicles"])
 
         self.controlled_vehicles = []
-        t=np.random.randint(11)
+        t=0
+        l=np.random.randint(3)
         for others in other_per_controlled:
             # controlled_vehicle = self.action_type.vehicle_class.create_random(
             #     self.road,
@@ -94,7 +95,7 @@ class HighwayEnv(AbstractEnv):
                   back=False
                   speed=np.random.randint(23,29)
                   self.road.vehicles.append(
-                      other_vehicles_type.create_random(self.road,amir=False,speed=speed,back=back, spacing=1 / self.config["vehicles_density"])
+                      other_vehicles_type.create_random(self.road,amir=False,speed=speed,lane_id=l, spacing=1 / self.config["vehicles_density"])
                   )
 
     def _reward(self, action: Action) -> float:

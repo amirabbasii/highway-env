@@ -35,6 +35,7 @@ class ControlledVehicle(Vehicle):
                  road: Road,
                  position: Vector,
                  heading: float = 0,
+                 
                  speed: float = 0,
                  target_lane_index: LaneIndex = None,
                  target_speed: float = None,
@@ -86,7 +87,7 @@ class ControlledVehicle(Vehicle):
         """
         self.follow_road()
         if action == "FASTER":
-            self.target_speed += self.DELTA_SPEED
+            self.target_speed -= self.DELTA_SPEED
         elif action == "SLOWER":
             self.target_speed -= self.DELTA_SPEED
         elif action == "LANE_RIGHT":
@@ -230,10 +231,16 @@ class MDPVehicle(ControlledVehicle):
         :param action: a high-level action
         """
         if action == "FASTER":
-            self.speed_index = self.speed_to_index(self.speed) + 1
+            self.speed_index = self.speed_to_index(self.speed) - 1
+
+            self.SPEED_MIN=self.speed-7.5
+            if self.SPEED_MIN<0:
+              self.SPEED_MIN=0
         elif action == "SLOWER":
             self.speed_index = self.speed_to_index(self.speed) - 1
-            self.SPEED_MIN=-1
+            self.SPEED_MIN=self.speed-15
+            if self.SPEED_MIN<0:
+              self.SPEED_MIN=0
         else:
             self.SPEED_MIN=20
             super().act(action)

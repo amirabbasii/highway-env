@@ -95,12 +95,12 @@ class IDMVehicle(ControlledVehicle):
         action['steering'] = self.steering_control(self.target_lane_index)
         action['steering'] = np.clip(action['steering'], -self.MAX_STEERING_ANGLE, self.MAX_STEERING_ANGLE)
         action['steering']=0
-        if self.sadism:
-          if np.abs(self.position[0]-self.road.vehicles[0].position[0])<5:
-            if self.road.vehicles[0].position[1]-self.position[1]<0:
-              action['steering']=-0.01
-            elif self.road.vehicles[0].position[1]-self.position[1]>0:
-              action['steering']=0.01
+        # if self.sadism:
+        #   if np.abs(self.position[0]-self.road.vehicles[0].position[0])<5:
+        #     if self.road.vehicles[0].position[1]-self.position[1]<0:
+        #       action['steering']=-0.01
+        #     elif self.road.vehicles[0].position[1]-self.position[1]>0:
+        #       action['steering']=0.01
 
         # Longitudinal: IDM
         front_vehicle, rear_vehicle = self.road.neighbour_vehicles(self, self.lane_index)
@@ -115,10 +115,10 @@ class IDMVehicle(ControlledVehicle):
                                                         rear_vehicle=rear_vehicle)
             action['acceleration'] = min(action['acceleration'], target_idm_acceleration)
         # action['acceleration'] = self.recover_from_stop(action['acceleration'])
-        if self.amir:
-            action['acceleration']=0
-        else:
-            action['acceleration'] = np.clip(action['acceleration'], -self.ACC_MAX, self.ACC_MAX)
+       
+        action['acceleration']=0
+        # else:
+        #     action['acceleration'] = np.clip(action['acceleration'], -self.ACC_MAX, self.ACC_MAX)
         Vehicle.act(self, action)  # Skip ControlledVehicle.act(), or the command will be overriden.
 
     def step(self, dt: float):

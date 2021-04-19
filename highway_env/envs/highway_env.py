@@ -68,7 +68,7 @@ class HighwayEnv(AbstractEnv):
 
         self.controlled_vehicles = []
         t=0
-        l=np.random.randint(3)
+        l=1
         for others in other_per_controlled:
             # controlled_vehicle = self.action_type.vehicle_class.create_random(
             #     self.road,
@@ -78,7 +78,7 @@ class HighwayEnv(AbstractEnv):
             #     lane_id=1,
             #     spacing=self.config["ego_spacing"]
             # )
-            flags=[False,True,False]
+            flags=[False,True,True]
             # array=[t,None,np.random.randint(23,25)]
             for i in range(others+1):
                 if i==t:

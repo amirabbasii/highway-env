@@ -39,7 +39,7 @@ class HighwayEnv(AbstractEnv):
                 "type": "DiscreteMetaAction",
             },
             "lanes_count": 3,
-            "vehicles_count": 2,
+            "vehicles_count": 10,
             "controlled_vehicles": 1,
             "initial_lane_id": None,
             "duration": 20,  # [s]
@@ -78,7 +78,7 @@ class HighwayEnv(AbstractEnv):
             #     lane_id=1,
             #     spacing=self.config["ego_spacing"]
             # )
-            flags=[False,True,True]
+            flags=[False,True]+[False for i in range(others-1)]
             # array=[t,None,np.random.randint(23,25)]
             for i in range(others+1):
                 if i==t:
@@ -95,7 +95,7 @@ class HighwayEnv(AbstractEnv):
                   back=False
                   speed=np.random.randint(23,29)
                   self.road.vehicles.append(
-                      other_vehicles_type.create_random(self.road,amir=flags[i],speed=speed,lane_id=l, spacing=1 / self.config["vehicles_density"])
+                      other_vehicles_type.create_random(self.road,amir=flags[i],speed=speed, spacing=1 / self.config["vehicles_density"])
                   )
 
     def _reward(self, action: Action) -> float:
